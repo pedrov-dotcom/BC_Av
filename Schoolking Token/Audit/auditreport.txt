@@ -1,0 +1,14 @@
+Relatório Simplificado de Auditoria
+
+Ferramentas:
+- Remix Static Analysis
+- OpenZeppelin Contracts
+
+Resultados:
+- Nenhuma vulnerabilidade crítica identificada.
+- Proteção contra reentrância aplicada no contrato Staking.
+- Uso de Solidity ^0.8.x.
+- Utilização de bibliotecas OpenZeppelin auditadas.
+
+Observações:
+Projeto desenvolvido como MVP acadêmico.

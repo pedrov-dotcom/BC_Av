@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SchoolKing Protocol</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+  <style>
+
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+
+      background: #1e1e1e;
+
+      padding: 40px;
+
+      border-radius: 12px;
+
+      width: 420px;
+
+      text-align: center;
+    }
+
+    button {
+
+      width: 100%;
+
+      padding: 15px;
+
+      margin-top: 15px;
+
+      border: none;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      font-size: 16px;
+
+      font-weight: bold;
+    }
+
+    #connectButton {
+      background: orange;
+      color: white;
+    }
+
+    #mintButton {
+      background: #00c896;
+      color: white;
+    }
+
+    #status {
+
+      margin-top: 20px;
+
+      font-size: 14px;
+
+      word-break: break-word;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>SchoolKing Protocol</h1>
+
+    <button id="connectButton">
+      Conectar Carteira
+    </button>
+
+    <button id="mintButton">
+      Mint NFT
+    </button>
+
+    <p id="status">
+      Status: aguardando conexão...
+    </p>
+
+  </div>
+
+  <script>
+
+    let provider;
+    let signer;
+
+    const nftAddress =
+    "0x062f3ae79076c5a40a22e6C39aF96f2a7eb96cC0";
+
+    const nftAbi = [
+      "function mintNFT(address to) public"
+    ];
+
+    const status =
+    document.getElementById("status");
+
+    // TESTE ETHERS
+
+    if (typeof ethers === "undefined") {
+
+      status.innerText =
+      "ERRO: ethers.js não carregou.";
+
+      console.error("ethers não encontrado");
+    }
+
+    // BOTÃO CONECTAR
+
+    document
+    .getElementById("connectButton")
+    .onclick = async () => {
+
+      try {
+
+        // TESTE METAMASK
+
+        if (typeof window.ethereum === "undefined") {
+
+          status.innerText =
+          "MetaMask não encontrada.";
+
+          alert(
+            "Instale ou habilite a MetaMask."
+          );
+
+          return;
+        }
+
+        // PEDIR CONTAS
+
+        await window.ethereum.request({
+          method: "eth_requestAccounts"
+        });
+
+        // PROVIDER
+
+        provider =
+        new ethers.providers.Web3Provider(
+          window.ethereum
+        );
+
+        signer = provider.getSigner();
+
+        // ENDEREÇO
+
+        const address =
+        await signer.getAddress();
+
+        status.innerText =
+        "Carteira conectada:\n" + address;
+
+        console.log("Conectado:", address);
+
+      } catch (error) {
+
+        console.error(error);
+
+        status.innerText =
+        "Erro ao conectar:\n" + error.message;
+      }
+    };
+
+    // BOTÃO MINT
+
+    document
+    .getElementById("mintButton")
+    .onclick = async () => {
+
+      try {
+
+        if (!signer) {
+
+          alert(
+            "Conecte a carteira primeiro."
+          );
+
+          return;
+        }
+
+        const contract =
+        new ethers.Contract(
+          nftAddress,
+          nftAbi,
+          signer
+        );
+
+        const address =
+        await signer.getAddress();
+
+        status.innerText =
+        "Enviando transação...";
+
+        const tx =
+        await contract.mintNFT(address);
+
+        console.log(tx);
+
+        await tx.wait();
+
+        status.innerText =
+        "NFT mintado com sucesso!";
+
+      } catch (error) {
+
+        console.error(error);
+
+        status.innerText =
+        "Erro no mint:\n" + error.message;
+      }
+    };
+
+  </script>
+
+</body>
+</html>
